@@ -5,3 +5,8 @@ pyloggly change log
 ------------------
 
 Initial release!
+
+0.2.0 (2018-02-26)
+------------------
+
+Python 3 compatibility

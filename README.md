@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/harvard-dce/pyloggly.svg?branch=master)](https://travis-ci.org/harvard-dce/pyloggly)
+
 # pyloggly
 
 Python logging handler for sending json-formatted events to [loggly](http://loggly.com). Basically the simplest thing I could make on the quick.
@@ -14,14 +16,14 @@ pip install pyloggly
 
 ```python
 
-    import logging
-    from pyloggly import LogglyHandler
-    
-    logger = logging.getLogger()
-    handler = LogglyHandler('mytoken', 'logs-01.loggly.com', 'mytag')
-    logger.addHandler(handler)
-    
-    logger.info("Hey, I'm logging to loggly!")
+import logging
+from pyloggly import LogglyHandler
+
+logger = logging.getLogger()
+handler = LogglyHandler('mytoken', 'logs-01.loggly.com', 'mytag')
+logger.addHandler(handler)
+
+logger.info("Hey, I'm logging to loggly!")
 ```
 
 ### Config via fileConfig
@@ -76,4 +78,4 @@ Apache 2.0
 
 ## Copyright
 
-2015 President and Fellows of Harvard College
+2018 President and Fellows of Harvard College
