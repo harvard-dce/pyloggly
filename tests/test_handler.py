@@ -3,6 +3,7 @@
 import json
 import logging
 import unittest
+import traceback
 from mock import Mock
 from requests import RequestException
 from pyloggly import LogglyHandler
@@ -68,11 +69,11 @@ class TestLogglyHandler(unittest.TestCase):
             raise Exception("boom!")
         except:
             logger.error("Something went boom!", exc_info=True)
+            expected_exc_info_value = traceback.format_exc()
         call_args, call_kwargs = handler.session.post.call_args
         data = json.loads(call_kwargs['data'])
         self.assertTrue('exc_info' in data)
-        self.assertTrue(isinstance(data['exc_info'], list))
-        self.assertEqual(data['exc_info'][1], 'Exception: boom!')
+        self.assertTrue(data['exc_info'], expected_exc_info_value)
 
     def test_post_exc(self):
         exc_cb = Mock()

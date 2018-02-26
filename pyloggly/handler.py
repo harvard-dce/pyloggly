@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from urllib import quote
+from six.moves.urllib.parse import quote
 from pythonjsonlogger import jsonlogger
 from requests_futures.sessions import FuturesSession
 from requests.exceptions import RequestException
@@ -56,5 +56,5 @@ class LogglyHandler(logging.Handler):
             self.session.post(self.url,
                               data=self.format(record),
                               background_callback=self.resp_callback)
-        except RequestException, e:
+        except RequestException as e:
             self.exc_callback(e)
