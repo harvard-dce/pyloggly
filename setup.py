@@ -42,13 +42,13 @@ setup(
     cmdclass={'test': PyTest},
     keywords='loggly logging',
     zip_safe=True,
-    classifiers=(
+    classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 2.7',
-    )
+        'Programming Language :: Python :: 2.7'
+    ]
 )
