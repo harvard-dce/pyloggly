@@ -4,10 +4,11 @@ import json
 import logging
 import unittest
 import traceback
-from mock import Mock
+from mock import Mock, patch
 from requests import RequestException
-from pyloggly import LogglyHandler
+from pyloggly import LogglyHandler, LogglyBulkHandler
 
+@patch('pyloggly.handler.atexit', new=Mock()) # disable atexit cleanup
 class TestLogglyHandler(unittest.TestCase):
 
     def test_init(self):
@@ -86,3 +87,42 @@ class TestLogglyHandler(unittest.TestCase):
         logger.addHandler(handler)
         logger.info("this is a test")
         exc_cb.assert_called_once_with(exc)
+
+    def test_bulk_init(self):
+        handler = LogglyBulkHandler('my_token', 'my_domain', 'test-tag')
+        self.assertEqual(handler.url, 'https://my_domain/bulk/my_token/tag/test-tag')
+
+    def test_bulk_emit(self):
+        handler = LogglyBulkHandler('my_token', 'my_domain', 'test-tag')
+        handler.flush = Mock()
+        logger = logging.getLogger('test-bulk-emit')
+        logger.setLevel(logging.INFO)
+        logger.addHandler(handler)
+        logger.info("this is a test")
+        self.assertEqual(len(handler.events), 1)
+        logger.info("this is another test")
+        logger.info("and another")
+        self.assertEqual(len(handler.events), 3)
+
+    def test_bulk_flush(self):
+        handler = LogglyBulkHandler('my_token', 'my_domain', 'test-tag')
+        handler.session = Mock()
+        logger = logging.getLogger('test-bulk-emit')
+        logger.setLevel(logging.INFO)
+        logger.addHandler(handler)
+        logger.info("this is a test")
+        handler.flush()
+        handler.session.post.assert_called_once()
+
+    def test_assert_batch_size_flush(self):
+        handler = LogglyBulkHandler('my_token', 'my_domain', 'test-tag',
+                                    batch_size=2)
+        handler.session = Mock()
+        logger = logging.getLogger('test-bulk-emit')
+        logger.setLevel(logging.INFO)
+        logger.addHandler(handler)
+        logger.info("this is a test")
+        self.assertEqual(len(handler.events), 1)
+        logger.info("this is another test")
+        handler.session.post.assert_called_once()
+        self.assertEqual(len(handler.events), 0)

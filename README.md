@@ -2,7 +2,7 @@
 
 # pyloggly
 
-Python logging handler for sending json-formatted events to [loggly](http://loggly.com). Basically the simplest thing I could make on the quick.
+Python logging handlers for sending json-formatted events to [loggly](http://loggly.com). Basically the simplest thing I could make on the quick.
 
 ## Installation
 
@@ -52,13 +52,26 @@ If you roll that way you can use a logging file config like this:
 
 ## Response and Exception callbacks
 
-If you want to do something to the response from the loggly api you can pass in a reference to to all callback function thusly:
+If you want to do something to the response from the loggly api you can pass in a reference to a callback function thusly:
 
 ```handler = LogglyHandler('token','host','tags', resp_callback=my_callback)```
 
-The handler's `emit` method will catch and re-raise any exceptions of type `requests.exceptions.RequestException` (and won't catch any others). You can override this by passing in another callback:
+The handler's `emit` method will catch and re-raise any exceptions of type `requests.exceptions.RequestException` (and won't catch any others). 
+You can override this by passing in another callback:
 
-```handler = LogglyHandler('token','host','tags', exc=my_callback)```
+```handler = LogglyHandler('token','host','tags', exc_callback=my_callback)```
+
+## Bulk endpoint handler
+
+pyloggly also includes a `LogglyBulkHandler` which utilizes the Loggly [bulk api endpoint](https://www.loggly.com/docs/http-bulk-endpoint/).
+Rather than sending each event is it is emitted, the bulk handler collects events up to `batch_size` and sends them in batches. A cleanup
+function is registered via `atexit.register` that will send remaining collected events. You can also explicitly call `handler.flush()`.
+
+## Flushing at exit
+
+`LogglyHandler` uses the standard Loggly HTTPS endpoint and uses a `FuturesSession` session from [requests-futures](https://github.com/ross/requests-futures)
+to execute async http requests. The handler registers an atexit cleanup function that tries to ensure all pending requests are completed, but YMMV as to reliability.
+In some environments, e.g. AWS Lambda, the main program thread may not signal when it exits (note, this is hearsay based on info in another project's [README](https://github.com/zach-taylor/splunk_handler)). For those cases it may be necessary to explicitly call the handler's `.flush()` method.
 
 
 ## Testing
